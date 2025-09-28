@@ -20,6 +20,6 @@ use Illuminate\Support\Facades\Route;
 
 // Agrega aquí la línea de importación de tu controlador
 use App\Http\Controllers\ControleController;
-
 Route::post('/autenticar', [ControleController::class, 'autenticar']);
 Route::get('/controles', [ControleController::class, 'index']);
+Route::get('/delegado/{ci_delegado}/mesas', [ControleController::class, 'listaMesasxDelegado']);
