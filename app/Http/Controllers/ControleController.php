@@ -70,7 +70,7 @@ public function index()
         $mesa->save();
         return response()->json([
             'message' => 'Mesa actualizada',
-            'mesa' => $mesa
+            'mesa' => $mesa->id
         ]);
     }
 }

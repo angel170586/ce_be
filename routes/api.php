@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\Route;
 
 // Agrega aquí la línea de importación de tu controlador
 use App\Http\Controllers\ControleController;
+use App\Http\Controllers\AdjuntoController;
 Route::post('/autenticar', [ControleController::class, 'autenticar']);
 Route::get('/controles', [ControleController::class, 'index']);
-Route::get('/delegado/{ci_delegado}/mesas', [ControleController::class, 'listaMesasxDelegado']);
+Route::get('/delegado/{ci_delegado}', [ControleController::class, 'listaMesasxDelegado']);
+Route::put('/mesa/{id}', [ControleController::class, 'actualizarMesa']);
+Route::post('/adjunto', [AdjuntoController::class, 'store']);
