@@ -27,6 +27,12 @@ class AdjuntoController extends Controller
             'ci_delegado'    => 'required|string|max:500',
         ]);
 
+        //validar que exista archivo
+        if (!$request->hasFile('archivo')) {
+            return response()->json(['error' => 'No se ha proporcionado ningún archivo'], 400);
+        }
+        $file = $request->file('archivo');
+
         $regControl= Controle::where('id', $request->id_control)->get(['id', 'numero_mesa','reci'])->first();
         if($regControl==null){
             return response()->json(['error' => 'Control no encontrado'], 404);
@@ -39,37 +45,35 @@ class AdjuntoController extends Controller
             $contador = count($existe) + 1;
         }
 
+        $extension = $file->getClientOriginalExtension();
+        $nombreArchivo = $regControl->numero_mesa . "_" . $contador . ".". $extension;
         // 2. guardar el registro sin el archivo por ahora, y obtener el id
         $adjunto = Adjunto::create([
             'id_control'     => $request->id_control,
-            'nombre_archivo' => $regControl->numero_mesa . "_" . $contador, // Se actualizará después de subir el archivo
+            'nombre_archivo' => $nombreArchivo,
             'id_estado'      => 2, // Asume un estado inicial de 'activo' o 'pendiente'
             'fecha_registro' => now(),
             'ci_delegado'    => $request->ci_delegado,
             'ruta'           => $regControl->reci, // Se actualizará después de subir el archivo
         ]);
 
+        //verificar que existe la carpeta storage/app/adjuntos, si no existe crearla
+        if (!Storage::exists('adjuntos')) {
+            Storage::makeDirectory('adjuntos');
+        }
+        //verificar que existe la carpeta storage/app/adjuntos/ + la variable ruta, si no existe crearla
+        if (!Storage::exists('adjuntos/' . $regControl->reci)) {
+            Storage::makeDirectory('adjuntos/' . $regControl->reci);
+        }
+
+        //armar la ruta completa del archivo storage/app/adjuntos/ + la variable ruta + la variable nombre_archivo + la extension del archivo
+        $file = $request->file('archivo');
+        $path = $file->storeAs('adjuntos/' . $regControl->reci, $nombreArchivo);
+
+        // 3. Actualizar el registro con la ruta del archivo
+        $adjunto->id_estado = 1;
+        $adjunto->save();
         return response()->json($adjunto->id, 201);
-
-
-        // // 2. Procesar la subida del archivo
-        // $file = $request->file('archivo');
-        // $fileName = time() . '_' . $file->getClientOriginalName();
-        
-        // // La ruta donde se guarda el archivo (ej: storage/app/adjuntos/)
-        // $path = $file->storeAs('adjuntos', $fileName); 
-
-        // // 3. Crear el registro en la base de datos
-        // $adjunto = Adjunto::create([
-        //     'id_control'     => $request->id_control,
-        //     'nombre_archivo' => $fileName,
-        //     'id_estado'      => 1, // Asume un estado inicial de 'activo' o 'pendiente'
-        //     'fecha_registro' => now(),
-        //     'ci_delegado'    => $request->ci_delegado,
-        //     'ruta'           => $path,
-        // ]);
-
-        // return response()->json($adjunto, 201);
     }
 
     // Muestra un adjunto específico
@@ -77,19 +81,5 @@ class AdjuntoController extends Controller
     {
         $adjunto = Adjunto::findOrFail($id);
         return response()->json($adjunto);
-    }
-
-    // // Elimina un adjunto (y su archivo asociado)
-    // public function destroy(string $id)
-    // {
-    //     $adjunto = Adjunto::findOrFail($id);
-
-    //     // 1. Eliminar el archivo del almacenamiento
-    //     Storage::delete($adjunto->ruta);
-
-    //     // 2. Eliminar el registro de la base de datos
-    //     $adjunto->delete();
-
-    //     return response()->json(null, 204);
-    // }
+    }    
 }
