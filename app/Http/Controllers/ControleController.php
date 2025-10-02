@@ -58,10 +58,11 @@ public function index()
             'libre' => 'required|integer',
             'pdc' => 'required|integer',
             'validos' => 'required|integer',
-            'blancos' => 'required|integer', // Nuevo campo
-            'nulos' => 'required|integer',   // Nuevo campo
-            'total' => 'required|integer',   // Nuevo campo
+            'blancos' => 'required|integer', //Nuevo campo
+            'nulos' => 'required|integer',   //Nuevo campo
+            'total' => 'required|integer',   //Nuevo campo
             'observacion' => 'nullable|string',
+            'ci_modificacion' => 'nullable|string', // Opcional: quien modifica
         ]);
 
         // 2. Buscar el registro (Mesa)
@@ -79,6 +80,7 @@ public function index()
         $mesa->nulos = $request->input('nulos');       // Actualización
         $mesa->total = $request->input('total');       // Actualización
         $mesa->observacion = $request->input('observacion');
+        $mesa->ci_modificacion = $request->input('ci_modificacion'); // Opcional: actualizar quien modificó
 
         // 4. Guardar los cambios
         $mesa->save();
