@@ -26,3 +26,6 @@ Route::get('/controles', [ControleController::class, 'index']);
 Route::get('/delegado/{ci_delegado}', [ControleController::class, 'listaMesasxDelegado']);
 Route::put('/mesa/{id}', [ControleController::class, 'actualizarMesa']);
 Route::post('/adjunto', [AdjuntoController::class, 'store']);
+Route::get('/', function () {
+    return view('welcome'); // O un simple return "¡Backend funcionando!";
+});
