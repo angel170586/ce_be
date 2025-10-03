@@ -20,9 +20,15 @@ public function index()
             'celular_delegado' => 'required',
         ]);
 
-        $delegado = Controle::where('ci_delegado', $request->input('ci_delegado'))
-                           ->where('celular_delegado', $request->input('celular_delegado'))
-                           ->first();
+        // 🛑 SOLUCIÓN: Usar (string) o concatenar una cadena vacía para asegurar que el valor sea un STRING
+    $ci_delegado = (string)$request->input('ci_delegado'); 
+    $celular_delegado = (string)$request->input('celular_delegado'); 
+    
+    $delegado = Controle::where('ci_delegado', $ci_delegado)
+                         ->where('celular_delegado', $celular_delegado)
+                         ->first();
+
+        
 
         if (!$delegado) {
             return response()->json(['message' => 'Credenciales inválidas'], 401);
